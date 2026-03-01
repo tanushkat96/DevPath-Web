@@ -31,6 +31,33 @@
     flex-wrap: wrap;
 }
 
+.marqueeContainer {
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+    -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+    mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+    padding: 1rem 0;
+}
+
+.marqueeTrack {
+    display: flex;
+    width: max-content;
+    animation: scroll 30s linear infinite;
+    gap: 4rem;
+    padding-left: 4rem; /* This padding offsets the gap for seamless looping */
+}
+
+.marqueeContainer:hover .marqueeTrack {
+    animation-play-state: paused;
+}
+
+@keyframes scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+
 .sponsorCard {
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.1);

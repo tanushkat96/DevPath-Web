@@ -13,13 +13,18 @@ export default function Sponsors() {
         },
         {
             name: "Elite Coders",
-            logo: "https://www.elitecoders.xyz/logo.png",
+            logo: "https://github.com/devpathindcommunity-india/OpenSourceData-DevPath/blob/main/logo%20(2).png?raw=true",
             url: "https://www.elitecoders.xyz/"
         },
         {
             name: "Aprtre 3.0",
             logo: "https://apertre.resourcio.in/assets/vector.svg",
             url: "https://apertre.resourcio.in/"
+        },
+        {
+            name: "Resourcio Community",
+            logo: "https://raw.githubusercontent.com/Resourcio-Community/Resourcio_Community-Website/react/frontend/src/Images/site_assets/Updated-logo.svg",
+            url: "https://github.com/Resourcio-Community"
         }
     ];
 
@@ -68,54 +73,58 @@ export default function Sponsors() {
             {/* Community Sponsors */}
             <div className="mb-12">
                 <h3 className="text-xl font-semibold text-center mb-8 text-muted-foreground">Trusted By</h3>
-                <div className={styles.grid}>
-                    {communitySponsors.map((sponsor, index) => (
-                        <a
-                            key={index}
-                            href={sponsor.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className={styles.sponsorCard}
-                        >
-                            <div className={styles.imageWrapper}>
-                                <Image
-                                    src={sponsor.logo}
-                                    alt={sponsor.name}
-                                    width={200}
-                                    height={100}
-                                    className={styles.logo}
-                                    style={{ objectFit: 'contain' }}
-                                />
-                            </div>
-                        </a>
-                    ))}
+                <div className={styles.marqueeContainer}>
+                    <div className={styles.marqueeTrack}>
+                        {[...communitySponsors, ...communitySponsors].map((sponsor, index) => (
+                            <a
+                                key={index}
+                                href={sponsor.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={styles.sponsorCard}
+                            >
+                                <div className={styles.imageWrapper}>
+                                    <Image
+                                        src={sponsor.logo}
+                                        alt={sponsor.name}
+                                        width={200}
+                                        height={100}
+                                        className={styles.logo}
+                                        style={{ objectFit: 'contain' }}
+                                    />
+                                </div>
+                            </a>
+                        ))}
+                    </div>
                 </div>
             </div>
 
             {/* Event Sponsors */}
             <div>
                 <h3 className="text-xl font-semibold text-center mb-8 text-muted-foreground">Event Sponsors</h3>
-                <div className={styles.grid}>
-                    {eventSponsors.map((sponsor, index) => (
-                        <a
-                            key={index}
-                            href={sponsor.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className={styles.sponsorCard}
-                        >
-                            <div className={styles.imageWrapper}>
-                                <Image
-                                    src={sponsor.logo}
-                                    alt={sponsor.name}
-                                    width={200}
-                                    height={100}
-                                    className={styles.logo}
-                                    style={{ objectFit: 'contain' }}
-                                />
-                            </div>
-                        </a>
-                    ))}
+                <div className={styles.marqueeContainer}>
+                    <div className={styles.marqueeTrack}>
+                        {[...eventSponsors, ...eventSponsors].map((sponsor, index) => (
+                            <a
+                                key={index}
+                                href={sponsor.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={styles.sponsorCard}
+                            >
+                                <div className={styles.imageWrapper}>
+                                    <Image
+                                        src={sponsor.logo}
+                                        alt={sponsor.name}
+                                        width={200}
+                                        height={100}
+                                        className={styles.logo}
+                                        style={{ objectFit: 'contain' }}
+                                    />
+                                </div>
+                            </a>
+                        ))}
+                    </div>
                 </div>
             </div>
         </section>
