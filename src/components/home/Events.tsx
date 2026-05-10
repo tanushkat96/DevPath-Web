@@ -128,7 +128,7 @@ function EventCard({ event, index, isCompleted = false }: { event: any, index: n
                                     Completed
                                 </span>
                                 <a
-                                    href={event.rankingsLink || "#"}
+                                    href="/certificate"
                                     className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-full text-xs font-bold hover:bg-blue-700 transition-colors"
                                 >
                                     View Rankings <ExternalLink size={12} />
