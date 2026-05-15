@@ -3,7 +3,6 @@
 import { motion } from 'framer-motion';
 import { GraduationCap, Sparkles, Code, Server, Layers, Rocket, CheckCircle2, ArrowRight } from 'lucide-react';
 import Navbar from '@/components/layout/Navbar';
-import Footer from '@/components/layout/Footer';
 
 export default function CoursesPage() {
     return (
@@ -232,7 +231,6 @@ export default function CoursesPage() {
                     </div>
                 </div>
             </main>
-            <Footer />
         </div>
     );
 }
