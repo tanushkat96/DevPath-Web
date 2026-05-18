@@ -2,6 +2,10 @@ import { useState } from "react";
 import styles from "./QuizComponent.module.css";
 import { useGamification } from "../../context/GamificationContext";
 
+/**
+ * Static list of quiz questions used for developer resource testing.
+ * Each question contains a prompt, list of choice options, and the correct answer.
+ */
 const questions = [
   {
     question: "What is React?",
@@ -15,6 +19,11 @@ const questions = [
   },
 ];
 
+/**
+ * QuizComponent renders an interactive quiz interface.
+ * On completion, it calculates the user's score and awards gamification XP
+ * through the global GamificationContext depending on performance.
+ */
 export default function QuizComponent() {
   const { addXp } = useGamification();
 
