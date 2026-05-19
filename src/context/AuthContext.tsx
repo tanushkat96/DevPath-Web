@@ -71,6 +71,7 @@ interface User {
     badges?: string[];
     sessionId?: string;
     docId?: string; // Actual Firestore Document ID (Email or UID)
+    createdAt?: any;
 }
 
 interface AuthContextType {
@@ -195,8 +196,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                                 bio: '',
                                 city: '',
                                 state: '',
-                                district: '',
-                                socialLinks: {}
+                                socialLinks: {},
+                                createdAt: new Date().toISOString()
                             };
 
                             // Create the new member document
@@ -490,6 +491,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             const batch = (await import('firebase/firestore')).writeBatch(db);
             const arrayRemove = (await import('firebase/firestore')).arrayRemove;
             const increment = (await import('firebase/firestore')).increment;
+            const { POINTS } = await import('@/lib/points');
 
 
             // Update current user's following list
@@ -502,16 +504,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 following: arrayRemove(targetUserId)
             });
 
-            // Update target user's followers list
+            // Update target user's followers list & Deduct Points
             const targetCollection = targetRole === 'admin' ? 'admins' : 'members';
             // Use targetUserId directly
             const targetDocId = targetUserId;
 
             const targetUserRef = doc(db, targetCollection, targetDocId);
-            // Revert to update
-            batch.update(targetUserRef, {
+            
+            const updateData: any = {
                 followers: arrayRemove(user.uid)
-            });
+            };
+
+            // Only deduct points if target is NOT an admin
+            if (targetRole !== 'admin') {
+                updateData.points = increment(-POINTS.FOLLOWER_GAINED);
+            }
+
+            batch.update(targetUserRef, updateData);
+
+            // Sync target user points to leaderboard (Only if target is member or has leaderboard entry)
+            if (targetRole === 'member') {
+                const targetLeaderboardRef = doc(db, 'leaderboard', targetUserId);
+                batch.set(targetLeaderboardRef, {
+                    points: increment(-POINTS.FOLLOWER_GAINED)
+                }, { merge: true });
+            }
 
             await batch.commit();
 
