@@ -40,6 +40,10 @@ const POINTS = {
 const SOCIAL_BADGES = ['social-github', 'social-linkedin', 'social-instagram'];
 
 async function recalculatePoints() {
+    if (!SUPER_ADMIN_EMAIL || !SUPER_ADMIN_PASSWORD) {
+        console.error("Error: SUPER_ADMIN_EMAIL or SUPER_ADMIN_PASSWORD environment variables are not configured.");
+        return;
+    }
     console.log("Starting Point Recalculation (Original Values)...");
     try {
         await signInWithEmailAndPassword(auth, SUPER_ADMIN_EMAIL, SUPER_ADMIN_PASSWORD);

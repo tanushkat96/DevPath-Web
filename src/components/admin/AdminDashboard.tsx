@@ -21,6 +21,7 @@ import Image from 'next/image';
 import { calculateUserPointsAndBadges } from '@/lib/point-calculation';
 
 const SUPER_ADMIN_EMAIL = process.env.NEXT_PUBLIC_SUPER_ADMIN_EMAIL;
+const SUPER_ADMIN_PASSWORD = process.env.NEXT_PUBLIC_SUPER_ADMIN_PASSWORD;
 
 interface AdminDashboardProps {
     initialAuth?: boolean;
@@ -1022,7 +1023,7 @@ export default function AdminDashboard({ initialAuth = false }: AdminDashboardPr
 
             if (keyDoc.exists() && keyDoc.data().value === trimmedKey) {
                 // Auto-login as Super Admin if not already logged in as such
-                if (!auth.currentUser || auth.currentUser.email !== SUPER_ADMIN_EMAIL) {
+                if (SUPER_ADMIN_EMAIL && SUPER_ADMIN_PASSWORD && (!auth.currentUser || auth.currentUser.email !== SUPER_ADMIN_EMAIL)) {
                     try {
                         await signInWithEmailAndPassword(auth, SUPER_ADMIN_EMAIL, SUPER_ADMIN_PASSWORD);
                     } catch (loginError: any) {

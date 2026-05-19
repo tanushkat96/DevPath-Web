@@ -19,6 +19,10 @@ const SUPER_ADMIN_EMAIL = process.env.SUPER_ADMIN_EMAIL;
 const SUPER_ADMIN_PASSWORD = process.env.SUPER_ADMIN_PASSWORD;
 
 async function createSuperAdmin() {
+    if (!SUPER_ADMIN_EMAIL || !SUPER_ADMIN_PASSWORD) {
+        console.error("Error: SUPER_ADMIN_EMAIL or SUPER_ADMIN_PASSWORD environment variables are not configured.");
+        return;
+    }
     console.log(`Creating/Updating Super Admin: ${SUPER_ADMIN_EMAIL}...`);
 
     try {

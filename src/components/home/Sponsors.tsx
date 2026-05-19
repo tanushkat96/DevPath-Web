@@ -89,7 +89,7 @@ export default function Sponsors() {
                                         width={200}
                                         height={100}
                                         className={styles.logo}
-                                        style={{ objectFit: 'contain' }}
+                                        style={{ width: 'auto', height: 'auto', objectFit: 'contain' }}
                                     />
                                 </div>
                             </a>
@@ -118,7 +118,7 @@ export default function Sponsors() {
                                         width={200}
                                         height={100}
                                         className={styles.logo}
-                                        style={{ objectFit: 'contain' }}
+                                        style={{ width: 'auto', height: 'auto', objectFit: 'contain' }}
                                     />
                                 </div>
                             </a>
