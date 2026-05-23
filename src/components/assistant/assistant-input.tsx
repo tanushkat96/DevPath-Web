@@ -34,6 +34,12 @@ export function AssistantInput({
         onSend?.(value.trim());
         setValue("");
     };
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        handleSubmit(e as unknown as React.FormEvent);
+    }
+};
 
     return (
         <form
@@ -59,6 +65,7 @@ export function AssistantInput({
                     onChange={(e) => setValue(e.target.value)}
                     onFocus={() => setIsFocused(true)}
                     onBlur={() => setIsFocused(false)}
+                    onKeyDown={handleKeyDown}
                     rows={1}
                     placeholder={placeholder}
                     disabled={disabled}
