@@ -401,7 +401,7 @@ useEffect(() => {
                                     try {
                                         const d = new Date(user.createdAt.seconds ? user.createdAt.seconds * 1000 : user.createdAt);
                                         if (isNaN(d.getTime())) return 'Dec 2023';
-                                        return d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+                                        return d.toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
                                     } catch (e) {
                                         return 'Dec 2023';
                                     }
