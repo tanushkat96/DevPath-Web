@@ -93,8 +93,6 @@ export default function UserProfile() {
     const [followingList, setFollowingList] = useState<any[]>([]);
     const [isLoadingFollowers, setIsLoadingFollowers] = useState(false);
     const [isLoadingFollowing, setIsLoadingFollowing] = useState(false);
-    const [modalUsers, setModalUsers] = useState<any[]>([]);
-    const [loadingModalUsers, setLoadingModalUsers] = useState(false); 
 
     // Sync aboutContent when user data loads from AuthContext
 useEffect(() => {
