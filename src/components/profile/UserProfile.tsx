@@ -23,8 +23,10 @@ import { collection, query, where, orderBy, getDocs, doc, updateDoc, arrayUnion,
 import { db } from '@/lib/firebase';
 import { calculateLevel } from '@/lib/points';
 import { getEmbedUrl } from '@/lib/utils';
+import { copyToClipboard } from '@/lib/clipboard';
 import { GIT_FALLBACK_STATS } from '@/lib/github';
 import { getSafeSocialUrl, sanitizeSocialLinks } from '@/lib/safe-social-url';
+import { useNotification } from '@/context/NotificationContext';
 
 /**
  * UserProfile component renders the main dashboard profile page for authenticated developers.
@@ -35,7 +37,8 @@ import { getSafeSocialUrl, sanitizeSocialLinks } from '@/lib/safe-social-url';
  * - Rendering animated progress rings and privacy toggle modals.
  */
 export default function UserProfile() {
-    const { user, logout, updateUserProfile } = useAuth();
+    const { user, logout, updateUserProfile, awardPoints } = useAuth();
+    const { showSuccess, showError } = useNotification();
     const router = useRouter();
 
     useEffect(() => {
@@ -89,8 +92,10 @@ export default function UserProfile() {
     // Followers/Following Modal State
     const [showFollowersModal, setShowFollowersModal] = useState(false);
     const [showFollowingModal, setShowFollowingModal] = useState(false);
-    const [modalUsers, setModalUsers] = useState<any[]>([]);
-    const [loadingModalUsers, setLoadingModalUsers] = useState(false); 
+    const [followersList, setFollowersList] = useState<any[]>([]);
+    const [followingList, setFollowingList] = useState<any[]>([]);
+    const [isLoadingFollowers, setIsLoadingFollowers] = useState(false);
+    const [isLoadingFollowing, setIsLoadingFollowing] = useState(false);
 
     // Sync aboutContent when user data loads from AuthContext
 useEffect(() => {
@@ -171,9 +176,9 @@ useEffect(() => {
         if (earnedRisingStar && !hasRisingStarBadge) {
             try {
                 await updateUserProfile({
-                    achievements: [...(user.achievements || []), RISING_STAR_BADGE_ID],
-                    points: (user.points || 0) + 10
+                    achievements: [...(user.achievements || []), RISING_STAR_BADGE_ID]
                 });
+                await awardPoints(10);
                 alert("🎉 Congratulations! You earned the 'Rising Star' badge and 10 XP!");
             } catch (error) {
                 console.error("Error awarding badge:", error);
@@ -191,12 +196,18 @@ useEffect(() => {
         await updateUserProfile({ privacySettings: newSettings });
     };
 
-    const handleShareProfile = () => {
+    const handleShareProfile = async () => {
         if (!user) return;
         const url = `${window.location.origin}/u/${user.uid}`;
-        navigator.clipboard.writeText(url);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
+        const copied = await copyToClipboard(url);
+
+        if (copied) {
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+            showSuccess('Profile link copied to clipboard.');
+        } else {
+            showError('Copying the profile link is not supported in this browser.');
+        }
     };
 
     const handleSavePhoto = async () => {
@@ -240,10 +251,8 @@ useEffect(() => {
 
     const fetchModalUsers = async (uids: string[]) => {
         if (!uids || uids.length === 0) {
-            setModalUsers([]);
-            return;
+            return [];
         }
-        setLoadingModalUsers(true);
         try {
             // Fetch users one by one (optimization: use 'in' query for batches of 10 if needed)
             const { getDoc } = await import('firebase/firestore');
@@ -270,22 +279,47 @@ useEffect(() => {
 
                 return null;
             }));
-            setModalUsers(users.filter(u => u !== null));
+            return users.filter(u => u !== null);
         } catch (error) {
             console.error("Error fetching modal users:", error);
-        } finally {
-            setLoadingModalUsers(false);
+            return [];
         }
     };
 
-    const openFollowers = () => {
-        setShowFollowersModal(true);
-        fetchModalUsers(user?.followers || []);
+    const openFollowers = async () => {
+        setIsLoadingFollowers(true);
+        try {
+            const users = await fetchModalUsers(user?.followers || []);
+            setFollowersList(users);
+            setShowFollowersModal(true);
+        } catch (error) {
+            console.error("Failed to load followers:", error);
+        } finally {
+            setIsLoadingFollowers(false);
+        }
     };
 
-    const openFollowing = () => {
-        setShowFollowingModal(true);
-        fetchModalUsers(user?.following || []);
+    const openFollowing = async () => {
+        setIsLoadingFollowing(true);
+        try {
+            const users = await fetchModalUsers(user?.following || []);
+            setFollowingList(users);
+            setShowFollowingModal(true);
+        } catch (error) {
+            console.error("Failed to load following:", error);
+        } finally {
+            setIsLoadingFollowing(false);
+        }
+    };
+
+    const closeFollowersModal = () => {
+        setShowFollowersModal(false);
+        setFollowersList([]);
+    };
+
+    const closeFollowingModal = () => {
+        setShowFollowingModal(false);
+        setFollowingList([]);
     };
 
     if (!user) {
@@ -319,7 +353,7 @@ useEffect(() => {
                                     className="object-cover"
                                 />
                             </div>
-                            <button aria-label="Action button" 
+                            <button
                                 onClick={() => setIsEditingPhoto(!isEditingPhoto)}
                                 className="absolute bottom-2 right-2 md:bottom-4 md:right-4 p-2 bg-card text-foreground rounded-full border border-border shadow-md hover:bg-muted transition-colors opacity-0 group-hover:opacity-100 z-10"
                                 title="Change Avatar"
@@ -340,8 +374,8 @@ useEffect(() => {
                                     className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md mb-2"
                                 />
                                 <div className="flex gap-2">
-                                    <button aria-label="Action button"  onClick={handleSavePhoto} disabled={isSaving} className="flex-1 bg-primary text-primary-foreground py-1 rounded text-sm">Save</button>
-                                    <button aria-label="Action button"  onClick={() => setIsEditingPhoto(false)} className="flex-1 bg-muted text-muted-foreground py-1 rounded text-sm">Cancel</button>
+                                    <button onClick={handleSavePhoto} disabled={isSaving} className="flex-1 bg-primary text-primary-foreground py-1 rounded text-sm">Save</button>
+                                    <button onClick={() => setIsEditingPhoto(false)} className="flex-1 bg-muted text-muted-foreground py-1 rounded text-sm">Cancel</button>
                                 </div>
                             </div>
                         )}
@@ -363,7 +397,7 @@ useEffect(() => {
                         <p className="text-muted-foreground text-lg mb-4">@{user.email?.split('@')[0]}</p>
 
                         <div className="w-full mb-6">
-                            <button aria-label="Action button" 
+                            <button
                                 onClick={() => setIsEditingAbout(true)}
                                 className="w-full py-2 bg-card border border-border rounded-lg hover:bg-muted transition-colors font-medium text-sm"
                             >
@@ -372,11 +406,11 @@ useEffect(() => {
                         </div>
 
                         <div className="flex items-center gap-4 text-sm text-muted-foreground mb-6">
-                            <button aria-label="Action button"  onClick={openFollowers} className="flex items-center gap-1 hover:text-primary cursor-pointer transition-colors">
+                            <button onClick={openFollowers} className="flex items-center gap-1 hover:text-primary cursor-pointer transition-colors">
                                 <Users size={16} />
                                 <span className="font-bold text-foreground">{user.followers?.length || 0}</span> followers
                             </button>
-                            <button aria-label="Action button"  onClick={openFollowing} className="flex items-center gap-1 hover:text-primary cursor-pointer transition-colors">
+                            <button onClick={openFollowing} className="flex items-center gap-1 hover:text-primary cursor-pointer transition-colors">
                                 <span className="font-bold text-foreground">{user.following?.length || 0}</span> following
                             </button>
                         </div>
@@ -418,19 +452,19 @@ useEffect(() => {
 
                     {/* Achievements Sidebar Removed as per request */}
                     <div className="pt-6 border-t border-border">
-                        <button aria-label="Action button" 
+                        <button
                             onClick={() => setShowPrivacyModal(true)}
                             className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors mb-2"
                         >
                             <Shield size={16} /> Privacy Settings
                         </button>
-                        <button aria-label="Action button" 
+                        <button
                             onClick={handleShareProfile}
                             className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors mb-2"
                         >
                             {copied ? <Check size={16} /> : <Share2 size={16} />} Share Profile
                         </button>
-                        <button aria-label="Action button" 
+                        <button
                             onClick={() => {
                                 logout();
                                 window.location.href = '/';
@@ -723,7 +757,7 @@ useEffect(() => {
                                 <Star className="text-yellow-500" size={20} /> About Me
                             </h3>
                             {!isEditingAbout && (
-                                <button aria-label="Action button"  onClick={() => setIsEditingAbout(true)} className="text-sm text-primary hover:underline">
+                                <button onClick={() => setIsEditingAbout(true)} className="text-sm text-primary hover:underline">
                                     <Edit3 size={16} />
                                 </button>
                             )}
@@ -732,8 +766,8 @@ useEffect(() => {
                         {isEditingAbout ? (
                             <div className="space-y-4">
                                 <div className="flex bg-muted rounded-lg p-1 w-fit">
-                                    <button aria-label="Action button"  onClick={() => setAboutTab('write')} className={`px-3 py-1 text-sm rounded-md ${aboutTab === 'write' ? 'bg-background shadow-sm' : ''}`}>Write</button>
-                                    <button aria-label="Action button"  onClick={() => setAboutTab('preview')} className={`px-3 py-1 text-sm rounded-md ${aboutTab === 'preview' ? 'bg-background shadow-sm' : ''}`}>Preview</button>
+                                    <button onClick={() => setAboutTab('write')} className={`px-3 py-1 text-sm rounded-md ${aboutTab === 'write' ? 'bg-background shadow-sm' : ''}`}>Write</button>
+                                    <button onClick={() => setAboutTab('preview')} className={`px-3 py-1 text-sm rounded-md ${aboutTab === 'preview' ? 'bg-background shadow-sm' : ''}`}>Preview</button>
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -778,14 +812,20 @@ useEffect(() => {
                                     </div>
                                 </div>
                                 {aboutTab === 'write' ? (
-                                    <textarea
-                                        value={aboutContent}
-                                        onChange={(e) => setAboutContent(e.target.value)}
-                                        className="w-full min-h-[300px] p-4 bg-background border border-border rounded-lg font-mono text-sm"
-                                        placeholder="Markdown supported..."
-                                        name="aboutContent"
-                                        id="aboutContent"
-                                    />
+                                    <div>
+                                        <textarea
+                                            value={aboutContent}
+                                            onChange={(e) => setAboutContent(e.target.value)}
+                                            maxLength={500}
+                                            className="w-full min-h-[300px] p-4 bg-background border border-border rounded-lg font-mono text-sm"
+                                            placeholder="Markdown supported..."
+                                            name="aboutContent"
+                                            id="aboutContent"
+                                        />
+                                        <p className={`text-xs text-right mt-1 ${aboutContent.length >= 480 ? 'text-red-500' : 'text-muted-foreground'}`}>
+                                            {500 - aboutContent.length} / 500 characters remaining
+                                        </p>
+                                    </div>
                                 ) : (
                                     <div className="min-h-[300px] p-4 bg-background border border-border rounded-lg">
                                         <div className="markdown-body">
@@ -796,8 +836,8 @@ useEffect(() => {
                                     </div>
                                 )}
                                 <div className="flex justify-end gap-2">
-                                    <button aria-label="Action button"  onClick={() => setIsEditingAbout(false)} className="px-4 py-2 rounded-lg hover:bg-muted">Cancel</button>
-                                    <button aria-label="Action button"  onClick={handleSaveAbout} disabled={isSaving} className="px-4 py-2 bg-primary text-primary-foreground rounded-lg">Save</button>
+                                    <button onClick={() => setIsEditingAbout(false)} className="px-4 py-2 rounded-lg hover:bg-muted">Cancel</button>
+                                    <button onClick={handleSaveAbout} disabled={isSaving} className="px-4 py-2 bg-primary text-primary-foreground rounded-lg">Save</button>
                                 </div>
                             </div>
                         ) : (
@@ -837,7 +877,7 @@ useEffect(() => {
                             <h3 className="text-xl font-bold flex items-center gap-2">
                                 <Flame className="text-orange-500" size={20} /> Projects
                             </h3>
-                            <button aria-label="Action button" 
+                            <button
                                 onClick={() => {
                                     setProjectToEdit(null);
                                     setShowProjectModal(true);
@@ -897,7 +937,7 @@ useEffect(() => {
                     <div className="bg-card border border-border rounded-xl p-6 w-full max-w-md shadow-2xl">
                         <div className="flex justify-between items-center mb-6">
                             <h3 className="text-xl font-bold">Privacy Settings</h3>
-                            <button aria-label="Action button"  onClick={() => setShowPrivacyModal(false)}><X size={24} /></button>
+                            <button onClick={() => setShowPrivacyModal(false)}><X size={24} /></button>
                         </div>
                         <div className="space-y-4">
                             {['showMobile', 'showLocation', 'showEmail', 'showProjects', 'showRewards', 'isPublic', 'showInCommunity'].map((setting) => (
@@ -918,22 +958,73 @@ useEffect(() => {
                 </div>
             )}
 
-            {/* Followers/Following Modal */}
-            {(showFollowersModal || showFollowingModal) && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[2000] p-4">
-                    <div className="bg-card border border-border rounded-xl p-6 w-full max-w-md shadow-2xl max-h-[80vh] flex flex-col">
+            {/* Followers Modal */}
+            {showFollowersModal && (
+                <div 
+                    className="fixed inset-0 bg-black/50 flex items-center justify-center z-[2000] p-4"
+                    onClick={closeFollowersModal}
+                >
+                    <div 
+                        className="bg-card border border-border rounded-xl p-6 w-full max-w-md shadow-2xl max-h-[80vh] flex flex-col"
+                        onClick={(e) => e.stopPropagation()}
+                    >
                         <div className="flex justify-between items-center mb-4 border-b border-border pb-4">
-                            <h3 className="text-xl font-bold">{showFollowersModal ? 'Followers' : 'Following'}</h3>
-                            <button aria-label="Action button"  onClick={() => { setShowFollowersModal(false); setShowFollowingModal(false); }}><X size={24} /></button>
+                            <h3 className="text-xl font-bold">Followers</h3>
+                            <button onClick={closeFollowersModal}><X size={24} /></button>
                         </div>
 
                         <div className="flex-1 overflow-y-auto space-y-4 min-h-[200px]">
-                            {loadingModalUsers ? (
+                            {isLoadingFollowers ? (
                                 <div className="flex justify-center py-8"><div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div></div>
-                            ) : modalUsers.length === 0 ? (
-                                <div className="text-center py-8 text-muted-foreground">No users found.</div>
+                            ) : followersList.length === 0 ? (
+                                <div className="text-center py-8 text-muted-foreground">No followers yet.</div>
                             ) : (
-                                modalUsers.map(u => (
+                                followersList.map(u => (
+                                    <div key={u.uid} className="flex items-center gap-3 p-2 hover:bg-muted rounded-lg transition-colors">
+                                        <Image
+                                            src={u.photoURL || `https://ui-avatars.com/api/?name=${u.name}&background=random`}
+                                            alt={u.name}
+                                            width={40}
+                                            height={40}
+                                            className="w-10 h-10 rounded-full object-cover"
+                                        />
+                                        <div className="flex-1 overflow-hidden">
+                                            <h4 className="font-bold truncate">{u.name}</h4>
+                                            <p className="text-xs text-muted-foreground truncate">@{u.email?.split('@')[0]}</p>
+                                        </div>
+                                        <a href={`/u?uid=${u.uid}`} className="text-xs bg-primary/10 text-primary px-3 py-1 rounded-full hover:bg-primary/20">
+                                            View
+                                        </a>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Following Modal */}
+            {showFollowingModal && (
+                <div 
+                    className="fixed inset-0 bg-black/50 flex items-center justify-center z-[2000] p-4"
+                    onClick={closeFollowingModal}
+                >
+                    <div 
+                        className="bg-card border border-border rounded-xl p-6 w-full max-w-md shadow-2xl max-h-[80vh] flex flex-col"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="flex justify-between items-center mb-4 border-b border-border pb-4">
+                            <h3 className="text-xl font-bold">Following</h3>
+                            <button onClick={closeFollowingModal}><X size={24} /></button>
+                        </div>
+
+                        <div className="flex-1 overflow-y-auto space-y-4 min-h-[200px]">
+                            {isLoadingFollowing ? (
+                                <div className="flex justify-center py-8"><div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div></div>
+                            ) : followingList.length === 0 ? (
+                                <div className="text-center py-8 text-muted-foreground">Not following anyone yet.</div>
+                            ) : (
+                                followingList.map(u => (
                                     <div key={u.uid} className="flex items-center gap-3 p-2 hover:bg-muted rounded-lg transition-colors">
                                         <Image
                                             src={u.photoURL || `https://ui-avatars.com/api/?name=${u.name}&background=random`}
@@ -969,7 +1060,7 @@ useEffect(() => {
                     >
                         <div className="sticky top-0 z-10 flex items-center justify-between p-4 border-b border-border bg-card/95 backdrop-blur">
                             <h2 className="text-xl font-bold truncate pr-4">{selectedProject.title}</h2>
-                            <button aria-label="Action button" 
+                            <button
                                 onClick={() => setSelectedProject(null)}
                                 className="p-2 hover:bg-muted rounded-full transition-colors"
                             >
