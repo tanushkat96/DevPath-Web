@@ -105,6 +105,38 @@ flowchart LR
 
 ---
 
+## 📁 Folder Structure
+
+A quick overview of the project's organization to help new contributors navigate the codebase easily.
+
+```
+DevPath-Web/
+├── .github/               # GitHub workflows, PR & issue templates
+├── public/                # Static assets (images, icons, fonts, logo)
+├── scripts/               # Utility and automation scripts
+├── src/                   # Main source code
+│   ├── app/               # Next.js App Router — pages, layouts & routing
+│   ├── assets/            # Project assets (SVGs, illustrations)
+│   ├── components/        # Reusable UI components used across pages
+│   ├── config/            # App-level configuration and constants
+│   ├── context/           # React Context API providers (global state)
+│   ├── data/              # Static data, mock data & content constants
+│   ├── hooks/             # Custom React hooks for shared logic
+│   ├── lib/               # Third-party library setups (Firebase, etc.)
+│   └── utils/             # Helper functions and utility methods
+├── .env.example           # Environment variables template
+├── .env.local             # Local environment variables (git-ignored)
+├── firebase.json          # Firebase Hosting & services configuration
+├── firestore.rules        # Firestore security rules
+├── firestore.indexes.json # Firestore composite indexes
+├── next.config.ts         # Next.js configuration
+├── tailwind.config.ts     # Tailwind CSS configuration
+├── tsconfig.json          # TypeScript compiler configuration
+├── postcss.config.js      # PostCSS configuration
+└── eslint.config.mjs      # ESLint rules and configuration
+```
+
+
 ## 📸 Screenshots
 
 | Home Page | Community |
