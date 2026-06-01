@@ -84,6 +84,11 @@ service cloud.firestore {
         allow delete: if request.auth != null && (request.auth.uid == userId || isSuperAdmin());
       }
 
+      // Progress Subcollection - Roadmap progress tracking
+      match /progress/{progressId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+
       // Badges Subcollection
       match /badges/{badgeId} {
         allow read: if true;

@@ -15,12 +15,10 @@ import { useState, useEffect, useCallback, type ReactNode } from 'react';
 import { useGamification } from '@/context/GamificationContext';
 import QuizComponent from './QuizComponent';
 
-// --- FIREBASE IMPORTS ---
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
-// TODO: Replace with your actual Firebase config import path
 import { db } from '@/lib/firebase'; 
-// TODO: Replace with your actual Auth hook/context
 import { useAuth } from '@/context/AuthContext'; 
+import { useNotification } from '@/context/NotificationContext';
 
 interface RoadmapModalProps {
     isOpen: boolean;
@@ -82,6 +80,7 @@ export function RoadmapModal({
     const [showQuiz, setShowQuiz] = useState(false);
 
     const { addXp } = useGamification();
+    const { showError } = useNotification();
 
     useEffect(() => {
         const mountTimeout = window.setTimeout(() => {
@@ -124,6 +123,7 @@ export function RoadmapModal({
                     }
                 } catch (error) {
                     console.error("Error fetching progress from Firestore: ", error);
+                    showError('Unable to load your roadmap progress. Please try again.', 6000);
                     if (isMounted) {
                         setCurrentPhaseIndex(0);
                         setCompletedPhases([]);
@@ -166,6 +166,7 @@ export function RoadmapModal({
                 console.log(`Progress saved: Step ${currentPhaseIndex}`);
             } catch (error) {
                 console.error("Error writing progress to Firestore: ", error);
+                showError('Unable to save your progress. Your changes may be lost.', 6000);
             }
         };
 
@@ -220,6 +221,7 @@ export function RoadmapModal({
             addXp(500, `Completed the ${roadmap.title} Pathway!`);
         } catch (err) {
             console.error('Failed to add XP or save final progress: ', err);
+            showError('Failed to save completion progress. Your XP may not be awarded.', 6000);
         }
 
         onClose();

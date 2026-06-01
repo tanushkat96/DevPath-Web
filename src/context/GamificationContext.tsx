@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState } from 'react';
 import { Trophy, Zap, ArrowUpCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/context/AuthContext';
+import { useNotification } from '@/context/NotificationContext';
 
 export type NotificationType = 'xp' | 'achievement' | 'level-up';
 
@@ -122,6 +123,7 @@ const ToastMessage = ({ n, removeNotification }: { n: GamificationNotification, 
 
 export function GamificationProvider({ children }: { children: React.ReactNode }) {
     const { user, awardPoints } = useAuth();
+    const { showError } = useNotification();
     const [notifications, setNotifications] = useState<GamificationNotification[]>([]);
 
     const xp = user?.points || 0;
@@ -144,7 +146,10 @@ export function GamificationProvider({ children }: { children: React.ReactNode }
         const newLevel = Math.floor(Math.sqrt(newXp / 100));
         
         if (user && shouldPersist) {
-            awardPoints(amount).catch(err => console.error("Failed to award XP", err));
+            awardPoints(amount).catch(err => {
+                console.error("Failed to award XP", err);
+                showError('Failed to save XP. Your progress may not be persisted.', 6000);
+            });
         }
 
         const baseId = Date.now();
