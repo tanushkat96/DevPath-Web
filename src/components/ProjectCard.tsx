@@ -1,12 +1,20 @@
 "use client"
+
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Star, GitFork, Eye, ExternalLink, Github } from "lucide-react"
 import { PremiumCard } from "./ui/PremiumCard"
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+  TooltipProvider,
+} from "./ui/tooltip";
 
 interface Project {
     author: string
     title: string
+    skills?: string[]; 
     technologies: string[]
     stats: {
         stars: number
@@ -53,16 +61,29 @@ export function ProjectCard({ project }: { project: Project }) {
                     </h3>
 
                     {/* Tech Stack */}
-                    <div className="flex flex-wrap gap-2 mb-auto">
-                        {project.technologies.map((tech) => (
-                            <span
-                                key={tech}
-                                className="px-3 py-1 text-xs rounded-full bg-cyan-500/10 dark:bg-cyan-500/20 border border-cyan-500/20 dark:border-cyan-500/30 text-cyan-700 dark:text-cyan-300"
-                            >
-                                {tech}
-                            </span>
-                        ))}
-                    </div>
+{project.skills && project.skills.length > 0 && (
+    <div className="flex flex-wrap gap-1.5 mb-4">
+        {project.skills.slice(0, 3).map(skill => (
+            <TooltipProvider key={skill}>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <span className="px-2 py-0.5 bg-secondary/50 text-secondary-foreground text-[10px] rounded-full border border-border/50 cursor-default">
+                            {skill}
+                        </span>
+                    </TooltipTrigger>
+                    <TooltipContent side="top">
+                        <p>{skill}</p>
+                    </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
+        ))}
+        {project.skills.length > 3 && (
+            <span className="px-2 py-0.5 bg-secondary/50 text-secondary-foreground text-[10px] rounded-full border border-border/50">
+                +{project.skills.length - 3}
+            </span>
+        )}
+    </div>
+)}
 
                     {/* Stats */}
                     <div className="flex items-center gap-6 text-sm text-gray-500 dark:text-gray-400 mt-4 pt-4 border-t border-black/5 dark:border-white/10">
