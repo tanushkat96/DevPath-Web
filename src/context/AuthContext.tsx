@@ -598,28 +598,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         try {
             const { POINTS } = await import('@/lib/points');
-            const arrayUnion = (await import('firebase/firestore')).arrayUnion;
-            const increment = (await import('firebase/firestore')).increment;
+            const { arrayUnion, increment, writeBatch } = await import('firebase/firestore');
 
             const collectionName = user.role === 'admin' ? 'admins' : 'members';
             const docId = user.role === 'admin' ? user.email!.toLowerCase() : user.uid;
             const userRef = doc(db, collectionName, docId);
+            const leaderboardRef = doc(db, 'leaderboard', user.uid);
 
-            await setDoc(userRef, {
+            const batch = writeBatch(db);
+
+            batch.set(userRef, {
                 achievements: arrayUnion('community_follower'),
                 points: increment(POINTS.FOLLOW_COMMUNITY)
             }, { merge: true });
 
-            // Sync to Leaderboard
-            const leaderboardRef = doc(db, 'leaderboard', user.uid);
-            try {
-                await setDoc(leaderboardRef, {
-                    points: increment(POINTS.FOLLOW_COMMUNITY)
-                }, { merge: true });
-            } catch (syncError) {
-                leaderboardSyncErrorEmitter.emit(syncError, 'followCommunity-leaderboard-sync');
-                // Don't re-throw here since the main points were already awarded
-            }
+            batch.set(leaderboardRef, {
+                points: increment(POINTS.FOLLOW_COMMUNITY)
+            }, { merge: true });
+
+            await batch.commit();
 
             setUser(prev => prev ? {
                 ...prev,
