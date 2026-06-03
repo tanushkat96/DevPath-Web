@@ -94,7 +94,7 @@ const filteredProjects = useMemo(() => {
 
                     <div className="flex items-center gap-3">
                         {activeTab === 'discussions' && (
-                            <button aria-label="Action button" 
+                            <button aria-label="Action button"
                                 onClick={() => {
                                     if (!user) {
                                         alert("Please login to start a discussion.");
@@ -112,7 +112,7 @@ const filteredProjects = useMemo(() => {
 
                 {/* Tabs */}
                 <div className="flex border-b border-border mb-8">
-                    <button aria-label="Action button" 
+                    <button aria-label="Action button"
                         onClick={() => setActiveTab('discussions')}
                         className={`flex items-center gap-2 px-6 py-3 border-b-2 transition-colors ${activeTab === 'discussions'
                             ? 'border-primary text-primary font-medium'
@@ -121,7 +121,7 @@ const filteredProjects = useMemo(() => {
                     >
                         <MessageSquare size={18} /> Discussions
                     </button>
-                    <button aria-label="Action button" 
+                    <button aria-label="Action button"
                         onClick={() => setActiveTab('showcase')}
                         className={`flex items-center gap-2 px-6 py-3 border-b-2 transition-colors ${activeTab === 'showcase'
                             ? 'border-primary text-primary font-medium'
@@ -135,14 +135,14 @@ const filteredProjects = useMemo(() => {
                 {/* Sort Options (Only for Showcase) */}
                 {activeTab === 'showcase' && (
                     <div className="flex justify-end mb-6">
-                        <div className="flex bg-muted rounded-lg p-1">
-                            <button aria-label="Action button" 
+                        <div className="flex bg-gray-200 dark:bg-white/5 rounded-lg p-1">
+                            <button aria-label="Action button"
                                 onClick={() => setSortOption('newest')}
-                                className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${sortOption === 'newest' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                                className={`px-3 py-1 text-xs font-medium rounded-md transition-all mr-1 ${sortOption === 'newest' ? 'bg-background shadow-sm text-foreground' : 'text-foreground hover:bg-[#dadbdd] dark:hover:bg-white/5'}`}
                             >
                                 Newest
                             </button>
-                            <button aria-label="Action button" 
+                            <button aria-label="Action button"
                                 onClick={() => setSortOption('popular')}
                                 className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${sortOption === 'popular' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
                             >
@@ -249,7 +249,7 @@ const filteredProjects = useMemo(() => {
                     >
                         <div className="sticky top-0 z-10 flex items-center justify-between p-4 border-b border-border bg-card/95 backdrop-blur">
                             <h2 className="text-xl font-bold truncate pr-4">{selectedProject.title}</h2>
-                            <button aria-label="Action button" 
+                            <button aria-label="Action button"
                                 onClick={() => setSelectedProject(null)}
                                 className="p-2 hover:bg-muted rounded-full transition-colors"
                             >
@@ -286,7 +286,7 @@ const filteredProjects = useMemo(() => {
                             {/* Links & Skills */}
                             <div className="flex flex-wrap gap-4 pt-4 border-t border-border">
                                 {selectedProject.websiteUrl && (
-                                    <a aria-label="Link" 
+                                    <a aria-label="Link"
                                         href={selectedProject.websiteUrl}
                                         target="_blank"
                                         rel="noopener noreferrer"
@@ -307,7 +307,10 @@ const filteredProjects = useMemo(() => {
                     </div>
                 </div>
             )}
-            <ReviewsSection />
+            <div className="mt-6">
+                <ReviewsSection />
+            </div>
+
         </div>
     );
 }
