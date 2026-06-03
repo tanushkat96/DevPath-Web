@@ -100,7 +100,7 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
       </head>
-      <body className={`${inter.variable} ${spaceGrotesk.variable} ${barlowCondensed.variable}`}>
+      <body className={`${inter.variable} ${spaceGrotesk.variable} ${barlowCondensed.variable}`} suppressHydrationWarning>
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"

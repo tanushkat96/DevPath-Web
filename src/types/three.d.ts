@@ -51,6 +51,8 @@ declare module 'react' {
 			primitive: any;
 		}
 	}
+}
+
 declare global {
   namespace JSX {
     interface IntrinsicElements {
@@ -64,3 +66,4 @@ declare global {
     }
   }
 }
+

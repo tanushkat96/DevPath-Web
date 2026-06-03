@@ -6,7 +6,7 @@ import Navbar from '@/components/layout/Navbar';
 
 export default function CoursesPage() {
     return (
-        <div className="min-h-screen bg-[#0a0a0a] text-white selection:bg-primary/20">
+        <div className="min-h-screen bg-surface-deep text-white selection:bg-primary/20">
             <Navbar />
 
             <main className="pb-20 relative overflow-hidden">
@@ -152,7 +152,7 @@ export default function CoursesPage() {
                             </h2>
                             <div className="relative border-l border-white/10 pl-8 space-y-10">
                                 <div className="relative">
-                                    <span className="absolute -left-[39px] top-1 w-5 h-5 rounded-full bg-primary border-4 border-[#0a0a0a]" />
+                                    <span className="absolute -left-[39px] top-1 w-5 h-5 rounded-full bg-primary border-4 border-surface-deep" />
                                     <span className="text-sm font-bold text-primary mb-1 block">MARCH 2025</span>
                                     <h4 className="text-xl font-bold mb-2">The Foundation</h4>
                                     <p className="text-slate-400">
@@ -160,7 +160,7 @@ export default function CoursesPage() {
                                     </p>
                                 </div>
                                 <div className="relative">
-                                    <span className="absolute -left-[39px] top-1 w-5 h-5 rounded-full bg-slate-700 border-4 border-[#0a0a0a]" />
+                                    <span className="absolute -left-[39px] top-1 w-5 h-5 rounded-full bg-slate-700 border-4 border-surface-deep" />
                                     <span className="text-sm font-bold text-slate-500 mb-1 block">APRIL 2025</span>
                                     <h4 className="text-xl font-bold mb-2">Logic & Programming</h4>
                                     <p className="text-slate-400">
@@ -168,7 +168,7 @@ export default function CoursesPage() {
                                     </p>
                                 </div>
                                 <div className="relative">
-                                    <span className="absolute -left-[39px] top-1 w-5 h-5 rounded-full bg-slate-700 border-4 border-[#0a0a0a]" />
+                                    <span className="absolute -left-[39px] top-1 w-5 h-5 rounded-full bg-slate-700 border-4 border-surface-deep" />
                                     <span className="text-sm font-bold text-slate-500 mb-1 block">MAY 2025</span>
                                     <h4 className="text-xl font-bold mb-2">Advanced Frameworks</h4>
                                     <p className="text-slate-400">
