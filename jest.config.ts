@@ -10,6 +10,7 @@ const config: Config = {
   transform: {
     '^.+\\.(ts|tsx)$': ['babel-jest', { configFile: './babel.config.jest.js' }],
   },
+  testPathIgnorePatterns: ['<rootDir>/tests/e2e/'],
 };
 
 export default config;
