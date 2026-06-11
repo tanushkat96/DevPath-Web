@@ -412,7 +412,6 @@
   color: #00d4ff;
 }
 
-
 /* ── Level progress ────────────────────────────────────────────────── */
 .progressSection {
   width: 100%;
@@ -658,7 +657,10 @@
   flex-shrink: 0;
   font-weight: 500;
 }
-.langName, .langPct { line-height: 14px; }
+.langName,
+.langPct {
+  line-height: 14px;
+}
 /* ── Empty hint ────────────────────────────────────────────────────── */
 .emptyHint {
   display: flex;
@@ -825,4 +827,3 @@
   transition: none !important;
   transform: none !important;
 }
-

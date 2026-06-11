@@ -292,56 +292,56 @@ export default function DevCard({ user }: { user: any }) {
   };
 
   const handleDownload = async () => {
-  if (!cardRef.current) return;
+    if (!cardRef.current) return;
 
-  setDownloading(true);
+    setDownloading(true);
 
-  const node = cardRef.current;
+    const node = cardRef.current;
 
-  const originalWidth = node.style.width;
-  const originalMaxWidth = node.style.maxWidth;
+    const originalWidth = node.style.width;
+    const originalMaxWidth = node.style.maxWidth;
 
-  try {
-    await document.fonts.ready;
-    await waitForCardImages(node);
+    try {
+      await document.fonts.ready;
+      await waitForCardImages(node);
 
-    node.style.width = `${node.offsetWidth}px`;
-    node.style.maxWidth = `${node.offsetWidth}px`;
+      node.style.width = `${node.offsetWidth}px`;
+      node.style.maxWidth = `${node.offsetWidth}px`;
 
-    node.classList.add(styles.exporting);
+      node.classList.add(styles.exporting);
 
-    await new Promise((resolve) => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
-    const width = node.offsetWidth;
-    const height = node.offsetHeight;
+      const width = node.offsetWidth;
+      const height = node.offsetHeight;
 
-    const dataUrl = await toPng(node, {
-      pixelRatio: 3,
-      cacheBust: true,
-      width,
-      height,
-      canvasWidth: width * 3,
-      canvasHeight: height * 3,
-    });
+      const dataUrl = await toPng(node, {
+        pixelRatio: 3,
+        cacheBust: true,
+        width,
+        height,
+        canvasWidth: width * 3,
+        canvasHeight: height * 3,
+      });
 
-    const a = document.createElement('a');
-    a.href = dataUrl;
-    a.download = `devcard-${user?.name?.replace(/\s+/g, '-').toLowerCase() ?? 'devcard'}.png`;
-    a.click();
+      const a = document.createElement('a');
+      a.href = dataUrl;
+      a.download = `devcard-${user?.name?.replace(/\s+/g, '-').toLowerCase() ?? 'devcard'}.png`;
+      a.click();
 
-    showSuccess('DevCard downloaded successfully.');
-  } catch (err) {
-    console.error(err);
-    showError('Failed to download DevCard. Please try again.');
-  } finally {
-    node.classList.remove(styles.exporting);
+      showSuccess('DevCard downloaded successfully.');
+    } catch (err) {
+      console.error(err);
+      showError('Failed to download DevCard. Please try again.');
+    } finally {
+      node.classList.remove(styles.exporting);
 
-    node.style.width = originalWidth;
-    node.style.maxWidth = originalMaxWidth;
+      node.style.width = originalWidth;
+      node.style.maxWidth = originalMaxWidth;
 
-    setDownloading(false);
-  }
-};
+      setDownloading(false);
+    }
+  };
   const handleCopy = async () => {
     const copiedSuccessfully = await copyToClipboard(profileUrl);
 
